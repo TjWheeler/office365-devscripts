@@ -5,7 +5,7 @@ A collection of PowerShell Scripts for Office 365 and SharePoint.  The intention
 3. Passwords are stored encrypted for more security
 4. Scripts are less convulted as common functions are moved into modules
 
-#Important Concepts
+# Important Concepts
 - Call .\Start.ps1 to initialize the script framework
 - The script framework encrypts the password and stores the details in the env subfolder in "Environment Files"
 - The minimum parameters to call a script are normally: [Environment Name] [Environment Type]
