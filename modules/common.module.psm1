@@ -54,7 +54,7 @@ function Get-Environment ([String] $name = $null, [ValidateSet("Dev","Test","UAT
     }
     else 
     {
-        $response = Read-Host "Environment $name not found.  Woud you like to create on now? (y/N)"
+        $response = Read-Host "Environment $name not found.  Would you like to create one now? (y/N)"
         if($response -ieq "y")
         {
             & $PSScriptRoot\..\create-environment.ps1 -name $name -environmentType $environmentType
@@ -64,6 +64,26 @@ function Get-Environment ([String] $name = $null, [ValidateSet("Dev","Test","UAT
         {
             throw "Environment not found at path $filename"
         }
+    }
+}
+function Delete-Environment ([String] $name = $null, [ValidateSet("Dev","Test","UAT","Prod")][String] $environmentType = $null, [switch] $force = $false)
+{
+    $filename = "$PSScriptRoot\..\env\$name.$environmentType.environment"
+    if(Test-Path $filename)
+    {
+        if(-not $force)
+        {
+            $response = Read-Host "Are you sure you want to delete $filename? (y/N)"
+            if($response -ine "y")
+            {
+                throw "Delete environment aborted"
+            }
+        }
+        $filename | Remove-Item
+    }
+    else 
+    {
+        Write-Host "Environment $name not found."
     }
 }
 function Get-Environments ()

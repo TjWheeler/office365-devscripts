@@ -1,6 +1,6 @@
 #Script:	Delete-Listitems.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.1
+#Version:	0.2
 #Purpose: Delete all list items, even if 5000 item threshold limit has been hit.
 #Remarks: Uses CSOM to delete items in batches.
 param(
@@ -13,7 +13,7 @@ param(
     [switch] $confirm = $true
 )
 $InformationPreference = "Continue"
-.\start.ps1
+&("$PSScriptRoot\Start.ps1")
 Check-Environment $env $environmentType
 Warn-WillUpdate $env $environmentType $confirm 
 Add-Type -AssemblyName System.Web

@@ -1,12 +1,13 @@
 #Script:	Test-SPConnection.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.1
+#Version:	0.2
 #Purpose: CSOM Connection Test Script
 param(
     $env =  $(Read-Host "Specify environment name"),
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod")
 )
+&("$PSScriptRoot\Start.ps1")
 $context = Create-Context $env -environmentType $environmentType
 
 try

@@ -1,6 +1,6 @@
 #Script:	Set-ModernExperience.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.1
+#Version:	0.2
 #Credits: https://sharepoint.stackexchange.com/questions/188014/enable-new-list-experience-on-document-library-programmatically/195126
 #Purpose: Disable the SharePoint Modern Experience
 #Example: .\sp-testconnection.ps1 twdev1 dev

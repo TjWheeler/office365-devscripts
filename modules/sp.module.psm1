@@ -63,7 +63,6 @@ function Create-Context (
     $context.Credentials = $credential
     return $context
 }
-
 function Load-Context([Microsoft.SharePoint.Client.ClientContext] $context)
 {
     $web = $context.Web
@@ -71,4 +70,36 @@ function Load-Context([Microsoft.SharePoint.Client.ClientContext] $context)
     write-host "Attempting connection to $($context.Url)"
     $context.ExecuteQuery()
     write-host "Successfully conntected to $($web.Url)" -f Green
+}
+function Execute-WithRetry([Microsoft.SharePoint.Client.ClientContext] $context) 
+{
+    $retry = 1;
+    while($retry -le 5) 
+    {
+        try
+        {
+            $context.ExecuteQuery()
+            return
+        }
+        catch
+        {
+            if($_.Exception.Message -match "(429)" -or $_.Exception.Message -match "Timeout")
+            {
+                $sleepTime = $retry * 5
+                if($_.Exception.Message -match "(429)")
+                {
+                    write-warning "We are being throttled, sleeping for $sleepTime of attempt ($retry of 5)"
+                }
+                if($_.Exception.Message -match "Timeout")
+                {
+                    write-warning "Experienced a timeout, sleeping for $sleepTime of attempt ($retry of 5)"
+                }
+                Sleep ($retry * 5)
+                $retry++    
+                continue
+            }
+            throw
+        }
+    }
+    throw "Throttling or timeout has caused this process to terminate even after the retries"
 }

@@ -1,9 +1,9 @@
 #Script:	Set-ScriptMetadata.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.1
+#Version:	0.2
 #Purpose: Updates all scripts and sets name, author and version
 param(
-    $version = "0.1"
+    $version = "0.2"
 )
 
 function Update-FileLine([IO.FileInfo] $file, [string] $newLineValue, [string]$match, [int]$lineNumber)
@@ -43,7 +43,7 @@ function Set-FileMetadata([IO.FileInfo] $file, [string] $version)
     Update-FileLine $file $authorEntry "#Author:" 1
     Update-FileLine $file $versionEntry "#Version:" 2
 }
-[Array] $files = Get-ChildItem -Filter "Set-ScriptMetadata.ps1" -Recurse -Path $PSScriptRoot 
+[Array] $files = Get-ChildItem -Filter "*.ps1" -Recurse -Path $PSScriptRoot 
 $files | ForEach-Object { Set-FileMetadata $_ $version }
 
 

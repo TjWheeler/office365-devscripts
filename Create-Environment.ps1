@@ -1,6 +1,6 @@
 #Script:	Create-Environment.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.1
+#Version:	0.2
 #Purpose: Create/Update an environment file with encrypted passwords
 #Remarks: An environment file is named [EnviornmentName].[environmentType].environment and stores data in JSON format
 #       : Environment files are used by other scripts to get credentials
@@ -17,9 +17,9 @@ param(
     [ValidateSet("Online","2013","2016","2019")]
     [String] $csomVersion = $(Read-Host "Specify CSOM Version Online, 2013, 2016, 2019")
 )
-Import-Module -Name "$PSScriptRoot\Modules\Common.Module.psm1" -Force -DisableNameChecking 
+&("$PSScriptRoot\Start.ps1")
 $envPath = "$PSScriptRoot\env"
-$filename = "$filename\$name.$environmentType.environment"
+$filename = "$envPath\$name.$environmentType.environment"
 $environment = $null
 $schemaVersion = "1"
 $securePassword = $null
@@ -74,5 +74,5 @@ if(-not [IO.Directory]::Exists($envPath))
 {
     New-Item -ItemType directory -Path $envPath
 }
-$environment | ConvertTo-Json | set-content "$envPath\$filename"
+$environment | ConvertTo-Json | set-content $filename
 
