@@ -20,6 +20,13 @@ Environment details are stored within a .environment file in the env subfolder.
 The environment file contains all the values required to create a connection, such as siteUrl, username and password.
 If the environment file can't be found, you will be asked to create a new one.
 
-## Available Scripts
-TODO:
+## Available Scripts & Commands
+- Create-Environment.ps1 - Creates/Updates the environment files
+- Get-Environments.ps1 - Gets all environment files
+- Get-Environment - Loads a single environment
+- Delete-ListItems.ps1 - Deletes all items from a list.  Works even if 5000 item limit has been hit.
+- Get-CheckedOut.ps1 - Gets all items checked out from Master Pages and Style Library (Mine/All)
+- Test-SPConnection.ps1 - Connects to SharePoint to confirm connectivity
+- Set-ModernExperience.ps1 - Sets the modern experience enabled/disabled on a Site Collection
+- Start.ps1 - Automatically called by the scripts to load required modules.  You can optionally call this when opening a new powershell window.
 
