@@ -29,4 +29,4 @@ If the environment file can't be found, you will be asked to create a new one.
 - Test-SPConnection.ps1 - Connects to SharePoint to confirm connectivity
 - Set-ModernExperience.ps1 - Sets the modern experience enabled/disabled on a Site Collection
 - Start.ps1 - Automatically called by the scripts to load required modules.  You can optionally call this when opening a new powershell window.
-
+- Get-UserProfile.ps1 - Gets 1 or more profiles that match a specified parameter and outputs the User Profile Properties in SharePoint
