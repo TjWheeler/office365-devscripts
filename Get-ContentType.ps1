@@ -1,42 +1,42 @@
-﻿#Script:	Get-SiteField.ps1
+﻿#Script:	Get-ContentType.ps1
 #Author:	Tim Wheeler (http://timwheeler.io)
 #Version:	0.2
-#Purpose:   Get properties of a field in the Root Web
+#Purpose:   Get a ContentType in the Root Web
 #notes:     
 param(
     $env =  $(Read-Host "Specify environment name"),
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod"),
-    [string] $fieldName = $(Read-Host "Specify fieldname")
+    [string] $name = $(Read-Host "Specify name")
 )
 $InformationPreference = "continue"
 &("$PSScriptRoot\Start.ps1")
 $scriptStartTime = Get-Date
 
 
+
 $context = Create-Context $env -environmentType $environmentType
 try
 {
-     write-host "---- Looking for site field $fieldName ----"
-    $fields = $context.Site.RootWeb.Fields
-    $context.Load($fields)
-    Write-Information "Loading fields"
+     write-host "---- Looking for content type $name ----"
+    $items = $context.Site.RootWeb.ContentTypes
+    $context.Load($items)
+    Write-Information "Loading Content Types"
     Execute-WithRetry $context
     
-    [Array] $filtered = $fields | where-object { $_.InternalName -ieq $fieldName}
+    [Array] $filtered = $items | where-object { $_.Name -ieq $name}
     if($filtered.Count -eq 0) 
     {
-        Write-Warning "$fieldName not found"
+        Write-Warning "$name not found"
     } 
     else {
-        foreach($field in $filtered)
-        {
-            Write-Host "---- $field.InternalName ----"
-            Write-Host "`nProperties:"
-            $field 
-            Write-Host "`n`n"
-        }
+        $ct = $filtered[0]
+        $context.Load($ct)
+        Execute-WithRetry $context
+        $ct | fl Name, Description, Group, Hidden, Id, SchemaXml
+        return $ct
     }     
+    return $null
 }
 finally
 {
