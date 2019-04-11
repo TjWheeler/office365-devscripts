@@ -1,6 +1,6 @@
-﻿#Script:	Get-ContentTypeUsages.ps1
+#Script:	Get-ContentTypeUsages.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.2
+#Version:	0.3
 #Purpose:   Recurse the web structure and locate any usages of the content type
 #notes:     
 param(
@@ -19,7 +19,6 @@ function FindCTUsages([Microsoft.SharePoint.Client.Web] $web, $name, $contentTyp
     write-host "---- Looking for usages of content type $name in $($web.Url) ----"
     $lists = $web.Lists
     $context.Load($lists)
-    Write-Information "Loading Content Types"
     Execute-WithRetry $context
     
     foreach($list in $lists)

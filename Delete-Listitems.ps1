@@ -1,6 +1,6 @@
-#Script:	Delete-Listitems.ps1
+#Script:	Delete-Listitems.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.2
+#Version:	0.3
 #Purpose: Delete all list items, even if 5000 item threshold limit has been hit.
 #Remarks: Uses CSOM to delete items in batches.
 param(

@@ -1,6 +1,6 @@
-#Script:	Set-ModernExperience.ps1
+#Script:	Set-ModernExperience.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.2
+#Version:	0.3
 #Credits: https://sharepoint.stackexchange.com/questions/188014/enable-new-list-experience-on-document-library-programmatically/195126
 #Purpose: Disable the SharePoint Modern Experience
 #Example: .\sp-testconnection.ps1 twdev1 dev
@@ -9,10 +9,13 @@ param(
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod"),
     [ValidateSet("Enabled", "Disabled")]
-    [string] $enabled = $(Read-Host "Specify Enabled/Disabled")
+    [string] $enabled = $(Read-Host "Specify Enabled/Disabled"),
+    [switch] $confirm = $true
 )
 $InformationPreference = "continue"
 & ("$PSScriptRoot\start.ps1")
+Check-Environment $env $environmentType
+Warn-WillUpdate $env $environmentType $confirm 
 $context = Create-Context $env -environmentType $environmentType
 $web = $context.Web
 $context.Load($web)

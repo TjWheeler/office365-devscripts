@@ -1,9 +1,9 @@
-#Script:	Set-ScriptMetadata.ps1
+#Script:	Set-ScriptMetadata.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.2
+#Version:	0.3
 #Purpose: Updates all scripts and sets name, author and version
 param(
-    $version = "0.2"
+    $version = "0.3"
 )
 
 function Update-FileLine([IO.FileInfo] $file, [string] $newLineValue, [string]$match, [int]$lineNumber)
@@ -35,7 +35,7 @@ function Update-FileLine([IO.FileInfo] $file, [string] $newLineValue, [string]$m
 
 function Set-FileMetadata([IO.FileInfo] $file, [string] $version)
 {
-    $filenameEntry = "#Script:`t$($file.Name)"
+    $filenameEntry = "#Script:`t$($file.Name) https://github.com/TjWheeler/office365-devscripts"
     $authorEntry = "#Author:`tTim Wheeler (http://timwheeler.io)"
     $versionEntry = "#Version:`t$version"
 
