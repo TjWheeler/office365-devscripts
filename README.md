@@ -6,7 +6,7 @@ A collection of PowerShell Scripts for Office 365 and SharePoint.  The intention
 4. Scripts are less convulted as common functions are moved into modules
 
 # Important Concepts
-- Call .\Start.ps1 to initialize the script framework
+- Call .\Start.ps1 to initialize the script framework (the scripts will call this automatically)
 - The script framework encrypts the password and stores the details in the env subfolder in "Environment Files"
 - The minimum parameters to call a script are normally: [Environment Name] [Environment Type]
 
@@ -21,6 +21,7 @@ The environment file contains all the values required to create a connection, su
 If the environment file can't be found, you will be asked to create a new one.
 
 ## Available Scripts & Commands
+- Start.ps1 - Automatically called by the scripts to load required modules.  You can optionally call this when opening a new powershell window.
 - Create-Environment.ps1 - Creates/Updates the environment files
 - Get-Environments.ps1 - Gets all environment files
 - Get-Environment - Loads a single environment
@@ -28,5 +29,8 @@ If the environment file can't be found, you will be asked to create a new one.
 - Get-CheckedOut.ps1 - Gets all items checked out from Master Pages and Style Library (Mine/All)
 - Test-SPConnection.ps1 - Connects to SharePoint to confirm connectivity
 - Set-ModernExperience.ps1 - Sets the modern experience enabled/disabled on a Site Collection
-- Start.ps1 - Automatically called by the scripts to load required modules.  You can optionally call this when opening a new powershell window.
 - Get-UserProfile.ps1 - Gets 1 or more profiles that match a specified parameter and outputs the User Profile Properties in SharePoint
+- Delete-RecycleBins.ps1 - Empties the Web and Site recycle bins for a site collection.  It recurses through all sub webs.
+- Get-ContentType.ps1 - Gets details about a content type
+- Get-ContentTypeUsages.ps1 - Finds which lists are using a specified content type.  Recurses through all sub webs.
+
