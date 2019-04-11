@@ -20,7 +20,7 @@ Environment details are stored within a .environment file in the env subfolder.
 The environment file contains all the values required to create a connection, such as siteUrl, username and password.
 If the environment file can't be found, you will be asked to create a new one.
 
-## Available Scripts & Commands
+# Available Scripts & Commands
 - Start.ps1 - Automatically called by the scripts to load required modules.  You can optionally call this when opening a new powershell window.
 - Create-Environment.ps1 - Creates/Updates the environment files
 - Get-Environments.ps1 - Gets all environment files
