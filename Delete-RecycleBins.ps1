@@ -11,6 +11,7 @@ param(
 )
 $InformationPreference = "continue"
 &("$PSScriptRoot\Start.ps1")
+
 Check-Environment $env $environmentType
 Warn-WillUpdate $env $environmentType $confirm 
 $scriptStartTime = Get-Date
