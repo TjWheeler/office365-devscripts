@@ -1,6 +1,6 @@
 #Script:	Test-SPConnection.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose: CSOM Connection Test Script
 param(
     $env =  $(Read-Host "Specify environment name"),

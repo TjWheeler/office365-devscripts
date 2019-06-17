@@ -1,6 +1,6 @@
 #Script:	Get-ContentTypeUsages.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose:   Recurse the web structure and locate any usages of the content type
 #notes:     
 param(

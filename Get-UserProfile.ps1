@@ -1,6 +1,6 @@
 #Script:	Get-UserProfile.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose:   Output the properties of a user.
 #notes:     
 param(

@@ -1,6 +1,6 @@
 #Script:	Set-Feature.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose: Enable/Disable Site or Web Feature
 #Example: .\Set-Feature.ps1
 param(

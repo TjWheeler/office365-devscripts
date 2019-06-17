@@ -1,6 +1,6 @@
 #Script:	Get-CheckedOut.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose:   Checks the Style Library and Master Pages library to see if any of the items are checked out to the current user or any user.
 param(
     $env =  $(Read-Host "Specify environment name"),

@@ -1,6 +1,6 @@
 #Script:	Create-Environment.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose: Create/Update an environment file with encrypted passwords
 #Remarks: An environment file is named [EnviornmentName].[environmentType].environment and stores data in JSON format
 #       : Environment files are used by other scripts to get credentials

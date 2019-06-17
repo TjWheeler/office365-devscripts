@@ -1,6 +1,6 @@
 #Script:	Get-ContentType.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose:   Get a ContentType in the Root Web
 #notes:     
 param(

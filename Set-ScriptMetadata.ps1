@@ -1,9 +1,9 @@
 #Script:	Set-ScriptMetadata.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose: Updates all scripts and sets name, author and version
 param(
-    $version = "0.3"
+    $version = "0.4"
 )
 
 function Update-FileLine([IO.FileInfo] $file, [string] $newLineValue, [string]$match, [int]$lineNumber)

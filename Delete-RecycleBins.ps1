@@ -1,6 +1,6 @@
 #Script:	Delete-RecycleBins.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
-#Version:	0.3
+#Version:	0.4
 #Purpose:   Recurse the web structure and clear all of the Web Recycle Bins.  Then clear the Site Recycle Bin.
 #notes:     
 param(
