@@ -35,6 +35,7 @@ function LoadCSOMLibraries($env)
         Add-Type -LiteralPath ("$libsPath\CSOM\$($env.csomVersion)\lib\net45\Microsoft.SharePoint.Client.RunTime.dll") -PassThru | out-null
         Add-Type -LiteralPath ("$libsPath\CSOM\$($env.csomVersion)\lib\net45\Microsoft.SharePoint.Client.Taxonomy.dll") -PassThru | out-null
         Add-Type -LiteralPath ("$libsPath\CSOM\$($env.csomVersion)\lib\net45\Microsoft.SharePoint.Client.UserProfiles.dll") -PassThru | out-null
+        Add-Type -LiteralPath ("$libsPath\CSOM\$($env.csomVersion)\lib\net45\Microsoft.SharePoint.Client.WorkflowServices.dll") -PassThru | out-null
     }
 }
 function Create-Context (
@@ -74,7 +75,7 @@ function Load-Context([Microsoft.SharePoint.Client.ClientContext] $context)
 function Execute-WithRetry([Microsoft.SharePoint.Client.ClientContext] $context) 
 {
     $retry = 1;
-    while($retry -le 5) 
+    while($retry -lt 5) 
     {
         try
         {
@@ -83,17 +84,18 @@ function Execute-WithRetry([Microsoft.SharePoint.Client.ClientContext] $context)
         }
         catch
         {
-            if($_.Exception.Message -match "(429)" -or $_.Exception.Message -match "Timeout")
+            if($_.Exception.Message -match "(429)")
             {
                 $sleepTime = $retry * 5
-                if($_.Exception.Message -match "(429)")
-                {
-                    write-warning "We are being throttled, sleeping for $sleepTime of attempt ($retry of 5)"
-                }
-                if($_.Exception.Message -match "Timeout")
-                {
-                    write-warning "Experienced a timeout, sleeping for $sleepTime of attempt ($retry of 5)"
-                }
+                write-warning "We are being throttled, sleeping for $sleepTime of attempt ($retry of 5)"
+                Sleep ($retry * 5)
+                $retry++    
+                continue
+            }
+            if($_.Exception.Message -match "(503)")
+            {
+                $sleepTime = $retry * 5
+                write-warning "We are got back a 503 from SharePoint, will retry, sleeping for $sleepTime of attempt ($retry of 5)"
                 Sleep ($retry * 5)
                 $retry++    
                 continue
@@ -101,5 +103,40 @@ function Execute-WithRetry([Microsoft.SharePoint.Client.ClientContext] $context)
             throw
         }
     }
-    throw "Throttling or timeout has caused this process to terminate even after the retries"
+    throw "Throttling or Server Error as caused this process to terminate even after the retries"
 }
+Function DownloadFile($context, $fileUrl, $downloadLocation)
+{
+  $web = $context.Web
+  $file = $web.GetFileByServerRelativeUrl($fileUrl)
+  $context.Load($file)
+  Execute-WithRetry $context;
+  if($file.Exists -eq $false)
+  {
+    throw "File does not exist $fileUrl"
+  }
+  try {
+        if($context.HasPendingRequest)
+        {
+          Execute-WithRetry $context
+        }
+        $fileInfo = [Microsoft.SharePoint.Client.File]::OpenBinaryDirect($context, $fileUrl)
+        [IO.Stream]$sharePointStream = $fileInfo.Stream
+        $fileStream = new-object IO.FileStream($downloadLocation, [IO.FileMode]::Create)
+        $sharePointStream.CopyTo($fileStream)
+        $fileStream.Close()
+        Write-host "Created file $downloadLocation" 
+  }
+  finally {
+    if($fileInfo -ne $null -and $fileInfo.Stream -ne $null)
+    {
+      $fileInfo.Stream.Dispose()
+    }
+    if($sharePointStream -ne $null)
+    {
+        $sharePointStream.Dispose()
+    }
+    
+  }
+
+}	

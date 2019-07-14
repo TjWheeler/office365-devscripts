@@ -1,13 +1,14 @@
-#Script:	Export-TermSet.ps1 https://github.com/TjWheeler/office365-devscripts
+﻿#Script:	Export-TermSet.ps1 https://github.com/TjWheeler/office365-devscripts
 #Author:	Tim Wheeler (http://timwheeler.io)
 #Version:	0.4
 #Purpose:   Exports the TermSet and generates xml for future import
+#Example: .\Export-TermSet.ps1 myenv dev -filename C:\terms.xml -termSetNames ("Audience","Category","Document Type","Event Type","File Format","Region")
 param(
     $env = $(Read-Host "Specify environment name"),
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod"),
-    [String] $termStoreName = $(read-host "Please enter term store name"),
-    [Array]  $groupNames = $(read-host "Please enter group name"),
+    [String] $termStoreName = $(read-host "Please enter term store name or leave empty to use default"),
+    [Array]  $groupNames = $(read-host "Please enter group name or leave empty to use default"),
     [Array]  $termSetNames = $(read-host "Please enter term set name"),
     [string] $filename = $(read-host "Please enter file path and name")
 )
@@ -25,9 +26,13 @@ function OutputValidTermStores([Microsoft.SharePoint.Client.Taxonomy.TaxonomySes
         Write-Host ([Microsoft.SharePoint.Client.Taxonomy.TermStore]$store).Name
     }
 }
+Function SanitiseName($value)
+{
+    return $value.Replace("＆", "&amp;").Replace("＂","`"")
+}
 Function WriteTerm ([System.IO.StreamWriter] $writer, [Microsoft.SharePoint.Client.Taxonomy.Term] $term, $indentLevel)
 {
-    WriteXml $writer "<Term name='$($term.Name)' id='$($term.Id)'>" $indentLevel #Term
+    WriteXml $writer "<Term name='$(SanitiseName($term.Name))' id='$($term.Id)'>" $indentLevel #Term
     $context.Load($term.Terms)
     $context.ExecuteQuery()
     if($term.Terms.Count -gt 0)
@@ -50,7 +55,7 @@ function ExportTermset([System.IO.StreamWriter] $writer, [Microsoft.SharePoint.C
 {
     if($termSet -ne $null)
     {
-        WriteXml $writer "<TermSet name='$($termSet.Name)' id='$($termGroup.Id)'>" ($indexLevel + 1)  #TermSet
+        WriteXml $writer "<TermSet name='$(SanitiseName($termSet.Name))' id='$($termSet.Id)'>" ($indexLevel + 2)  #TermSet
         $context.Load($termSet)
         
         $childTerms = $termSet.Terms
@@ -62,22 +67,9 @@ function ExportTermset([System.IO.StreamWriter] $writer, [Microsoft.SharePoint.C
             WriteTerm $writer $term ($indentLevel + 2)
         }
         WriteXml $writer "</Terms>" ($indentLevel + 1)
-        WriteXml $writer "</TermSet>" ($indexLevel + 1) 
+        WriteXml $writer "</TermSet>" ($indexLevel + 2) 
 
     }
-}
-function AppendNode($xml, $parentNode, $name)
-{
-    $node =  $xml.CreateNode("element", $name,"")
-    $parentNode.AppendChild($node) | Out-Null
-    return $node
-}
-function AppendAttribute($xml, $node, $name, $value)
-{
-    $attribute = $xml.CreateAttribute($name)
-    $attribute.Value = $value
-    $node.Attributes.Append($attribute) | Out-Null
-    return $attribute
 }
 Function WriteXml([System.IO.StreamWriter] $writer, $value, [int] $tabs)
 {
@@ -89,7 +81,7 @@ Function WriteXml([System.IO.StreamWriter] $writer, $value, [int] $tabs)
 }
 #Setup a stream and writer to deal with the Xml, as its easier than working with XmlDocuments
 $fileStream = New-Object IO.FileStream($filename, [IO.FileMode]::Create)
-$writer = New-Object IO.StreamWriter $fileStream
+$writer = New-Object IO.StreamWriter($fileStream, [System.Text.Encoding]::UTF8)
 $writer.AutoFlush = $true
 $writer.WriteLine("<xml version=`"1.0`" encoding=`"utf-8`">")
 try
@@ -99,9 +91,22 @@ try
     $context.ExecuteQuery();
     try 
     {
-        $termStore = $taxonomySession.TermStores.GetByName($termStoreName);
-        $context.Load($termStore);
-        $context.ExecuteQuery();
+        if([string]::IsNullOrEmpty($termStoreName))
+        {
+            $termStore = $taxonomySession.GetDefaultSiteCollectionTermStore();
+            $context.Load($termStore);
+            $context.ExecuteQuery();
+            WriteXml $writer "<TermStore name='[defaultsitecollectiontermstore]' id='$($termStore.Id)'>"
+        } 
+        else 
+        {
+            $termStore = $taxonomySession.TermStores.GetByName($termStoreName);
+            $context.Load($termStore);
+            $context.ExecuteQuery();
+            WriteXml $writer "<TermStore name='$($termStore.Name)' id='$($termStore.Id)'>"
+        }
+        
+        
     }
     catch
     {
@@ -109,27 +114,42 @@ try
         OutputValidTermStores($taxonomySession)
         return
     }
+    if($groupNames -eq $null)
+    {
+        $groupNames = "";
+    }
     foreach($groupName in $groupNames)
     {
-        $termGroup = $termStore.Groups.GetByName($groupName);
+        
+        if([string]::IsNullOrEmpty($groupName))
+        {
+            $termGroup = $termStore.GetSiteCollectionGroup($context.Site, $true);
+        }
+        else 
+        {
+            $termGroup = $termStore.Groups.GetByName($groupName);
+        }
+
         $context.Load($termGroup);
         $termSets = $termGroup.TermSets
         $context.Load($termSets);
         $context.ExecuteQuery();
         $termSets | ForEach-Object { $context.Load($_) }
         $context.ExecuteQuery();
-        WriteXml $writer "<Group name='$($termGroup.Name)' id='$($termGroup.Id)'>"
+        WriteXml $writer "<Group name='$($termGroup.Name)' id='$($termGroup.Id)'>" 1
         foreach($setName in $termSetNames)
         {
             $termSet =  ($termSets | Where-Object {$_.Name -eq $setName })
             if($termSet -ne $null) 
             {
-                ExportTermset $writer $termSet 1
+                ExportTermset $writer $termSet 2
             }
         }
-        WriteXml $writer "</Group>"
+        WriteXml $writer "</Group>" 1
     }
+    WriteXml $writer "</TermStore>"
     WriteXml $writer "</xml>"
+    Write-Host -ForegroundColor Green "Created $filename successfully"
 }
 catch
 {
@@ -147,3 +167,6 @@ finally
         $context = $null
     }
 }
+
+
+

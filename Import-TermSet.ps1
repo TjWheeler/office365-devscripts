@@ -6,15 +6,16 @@ param(
     $env = $(Read-Host "Specify environment name"),
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod"),
-    [String] $termStoreName = $(read-host "Please enter term store name"),
-    [Array]  $groupName = $(read-host "Please enter group name"),
+    [String] $termStoreName = $(read-host "Please enter term store name or leave empty for default"),
+    [Array]  $groupName = $(read-host "Please enter group name or leave empty for default"),
     [string] $filename = $(read-host "Please enter file path and name"),
     [int]    $language = 1033,
-    [switch] $respectIdentifiers = $false
+    [switch] $respectIdentifiers = $false,
+    [switch] $confirm = $true
 )
 &("$PSScriptRoot\Start.ps1")
 $context = Create-Context $env -environmentType $environmentType
-
+Warn-WillUpdate $env $environmentType $confirm 
 
 function OutputValidTermStores([Microsoft.SharePoint.Client.Taxonomy.TaxonomySession] $taxonomySession)
 {
@@ -45,19 +46,7 @@ Function WriteTerm ([System.IO.StreamWriter] $writer, [Microsoft.SharePoint.Clie
     WriteXml $writer "</Term>" $indentLevel #Term
 
 }
-function AppendNode($xml, $parentNode, $name)
-{
-    $node =  $xml.CreateNode("element", $name,"")
-    $parentNode.AppendChild($node) | Out-Null
-    return $node
-}
-function AppendAttribute($xml, $node, $name, $value)
-{
-    $attribute = $xml.CreateAttribute($name)
-    $attribute.Value = $value
-    $node.Attributes.Append($attribute) | Out-Null
-    return $attribute
-}
+
 function Import-Terms($termSetElement, $terms, $parent )
 {
     foreach($termElement in $termSetElement.Terms.Term)
@@ -107,7 +96,8 @@ function Import-TermSet([Microsoft.SharePoint.Client.Taxonomy.TaxonomySession] $
     {
         Write-Host "Checking for updates to Term Set '$($termSet.Name)'"
     }
-    else {
+    else 
+    {
         Write-Host "Creating new Term Set '$($termSetElement.name)'" -ForegroundColor Green
         if($respectIdentifiers)
         {
@@ -138,7 +128,14 @@ try
     $context.ExecuteQuery();
     try 
     {
-        $termStore = $taxonomySession.TermStores.GetByName($termStoreName);
+         if([string]::IsNullOrEmpty($termStoreName))
+        {
+            $termStore = $taxonomySession.GetDefaultSiteCollectionTermStore();
+        } 
+        else 
+        {
+            $termStore = $taxonomySession.TermStores.GetByName($termStoreName);
+        }
         $context.Load($termStore);
         $context.ExecuteQuery();
     }
@@ -152,18 +149,25 @@ try
     $context.Load($termGroups)
     $context.ExecuteQuery();
 
-    $termGroup = $termGroups | Where-Object { $_.Name -eq $groupName };
-    if($termGroup -eq $null)
+    if([string]::IsNullOrEmpty($groupName))
     {
-        Write-Warning "Couldn't find a term group matching the name $groupName, valid names are:"
-        $termGroups | Select-Object { $_.Name } | fl
-        return
+        $termGroup = $termStore.GetSiteCollectionGroup($context.Site, $true);
+    }
+    else 
+    {
+        $termGroup = $termGroups | Where-Object { $_.Name -eq $groupName };
+        if($termGroup -eq $null)
+        {
+            Write-Warning "Couldn't find a term group matching the name $groupName, valid names are:"
+            $termGroups | Select-Object { $_.Name } | fl
+            return
+        }
     }
     $context.Load($termGroup);
     $context.Load($termGroup.TermSets);
     $context.ExecuteQuery();
 
-    foreach($termSet in $xml.xml.Group.TermSet)
+    foreach($termSet in $xml.xml.TermStore.Group.TermSet)
     {
         Import-Termset $taxonomySession $termGroup $termSet
     }
