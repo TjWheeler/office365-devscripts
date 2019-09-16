@@ -7,7 +7,7 @@ param(
     $env = $(Read-Host "Specify environment name"),
     [ValidateSet("Dev","Test","UAT","Prod")]
     [String] $environmentType = $(Read-Host "Specify EnvironmentType Dev,Test,UAT,Prod"),
-    [String] $listname = "FAQ", # $(Read-Host "Specify List Name"),
+    [String] $listname = $(Read-Host "Specify List Name"),
     [int] $batchSize = 50,
     [int] $batchSleepSeconds = 1,  #how many seconds to sleep between batches.  This can help if we get throttled (429 response).
     [switch] $confirm = $true
